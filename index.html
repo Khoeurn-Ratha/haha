@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RATHA // QUANT TRADE TRACKER ($100 ➔ $1,000 Challenge)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            950: '#060810',
+                            900: '#0b0f19',
+                            850: '#101726',
+                            800: '#162035',
+                            700: '#223252',
+                            600: '#334b7a',
+                            cyan: '#00f2fe',
+                            emerald: '#00f59b',
+                            rose: '#ff3366',
+                            gold: '#ffd700',
+                            purple: '#a855f7'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace']
+                    },
+                    boxShadow: {
+                        'neon-cyan': '0 0 25px -5px rgba(0, 242, 254, 0.35)',
+                        'neon-emerald': '0 0 25px -5px rgba(0, 245, 155, 0.35)',
+                        'neon-rose': '0 0 25px -5px rgba(255, 51, 102, 0.35)',
+                        'neon-gold': '0 0 25px -5px rgba(255, 215, 0, 0.35)',
+                        'glow-card': '0 12px 36px 0 rgba(0, 0, 0, 0.55)'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom Cyberpunk Stylesheet & Animations -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-cyber-950 text-slate-100 font-sans min-h-screen antialiased selection:bg-cyber-cyan selection:text-cyber-950 overflow-x-hidden">
+
+    <!-- Ambient Fixed Background Layer -->
+    <div class="bg-canvas-wrapper">
+        <div class="ambient-orb orb-cyan"></div>
+        <div class="ambient-orb orb-emerald"></div>
+        <div class="ambient-orb orb-purple"></div>
+        <div class="cyber-grid-overlay"></div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Top Navigation / Header -->
+        <header class="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-2xl glass-card border border-slate-800/80 shadow-glow-card">
+            <div class="flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-400 via-emerald-400 to-purple-500 p-[2px] shadow-neon-cyan flex items-center justify-center group transform transition-all duration-300 hover:rotate-6">
+                    <div class="w-full h-full bg-cyber-950 rounded-[10px] flex items-center justify-center">
+                        <i class="fa-solid fa-chart-line text-cyan-400 text-xl group-hover:scale-110 transition-transform"></i>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-xl font-extrabold tracking-tight text-shimmer">RATHA // QUANT</span>
+                        <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 text-[10px] font-mono uppercase tracking-wider font-bold">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400 radar-beacon mr-0.5"></span>
+                            <span>100➔1000 PRO</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400 font-mono">Discipline Protocol & 30-Day Growth Engine</p>
+                </div>
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div class="flex flex-wrap items-center gap-2.5">
+                <button onclick="openTradeModal()" class="btn-cyber-glow flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-emerald-400 to-emerald-500 text-cyber-950 font-extrabold text-sm shadow-neon-cyan active:scale-95 transition-all">
+                    <i class="fa-solid fa-circle-plus text-base"></i>
+                    <span>Log Trade</span>
+                </button>
+                <button onclick="openCalcModal()" class="card-hover-lift flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-cyber-850 hover:bg-cyber-800 text-slate-200 border border-slate-700/60 text-sm font-medium transition-all">
+                    <i class="fa-solid fa-calculator text-cyan-400"></i>
+                    <span>Risk Calc</span>
+                </button>
+                <button onclick="openSettingsModal()" class="card-hover-lift flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-cyber-850 hover:bg-cyber-800 text-slate-200 border border-slate-700/60 text-sm font-medium transition-all">
+                    <i class="fa-brands fa-telegram text-sky-400"></i>
+                    <span>Telegram Alerts</span>
+                </button>
+                <a href="/api/export" class="card-hover-lift flex items-center gap-2 px-3 py-2.5 rounded-xl bg-cyber-850 hover:bg-cyber-800 text-slate-300 border border-slate-700/60 text-sm font-medium transition-all" title="Export CSV History">
+                    <i class="fa-solid fa-file-arrow-down text-slate-400 hover:text-cyan-400"></i>
+                </a>
+            </div>
+        </header>
+
+        <!-- Dynamic Rule 8 Daily Loss Limit & Trading Status Alert Banner -->
+        <div id="statusAlertBanner" class="hidden rounded-2xl p-4 transition-all duration-500"></div>
+
+        <!-- 30-Day $100 ➔ $1,000 Challenge Progress Section (With animated border) -->
+        <section class="neon-border-animated p-6 rounded-2xl glass-card shadow-glow-card relative overflow-hidden">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-6">
+                <div>
+                    <div class="flex items-center gap-2.5 mb-1.5">
+                        <span class="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-cyber-gold/20 text-cyber-gold text-sm border border-cyber-gold/40 shadow-neon-gold">
+                            <i class="fa-solid fa-trophy"></i>
+                        </span>
+                        <h2 class="text-lg font-extrabold text-slate-100 tracking-wide uppercase">30-Day Growth Challenge: $100 ➔ $1,000</h2>
+                    </div>
+                    <p class="text-xs text-slate-400">Rule 8 Objective: Daily $5 - $10 compound target | Max risk $5/trade</p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3 text-xs font-mono">
+                    <div class="px-3.5 py-1.5 rounded-xl bg-cyber-900/90 border border-slate-800 flex items-center gap-2">
+                        <span class="text-slate-400">Start:</span>
+                        <span class="text-slate-200 font-bold" id="statStartBalance">$100.00</span>
+                    </div>
+                    <div class="px-3.5 py-1.5 rounded-xl bg-cyber-900/90 border border-slate-800 flex items-center gap-2">
+                        <span class="text-slate-400">Goal:</span>
+                        <span class="text-cyber-gold font-bold text-glow-gold" id="statTargetBalance">$1,000.00</span>
+                    </div>
+                    <div class="px-3.5 py-1.5 rounded-xl bg-cyber-900/90 border border-slate-800 flex items-center gap-2">
+                        <span class="text-slate-400">Remaining:</span>
+                        <span class="text-cyan-400 font-bold text-glow-cyan" id="statRemainingGoal">$900.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Animated Progress Bar with Light Wave Sheen -->
+            <div class="space-y-2.5">
+                <div class="flex justify-between items-center text-xs font-mono">
+                    <span class="text-slate-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-gauge-high text-cyan-400"></i> Overall Progress
+                    </span>
+                    <span id="challengeProgressText" class="text-emerald-400 font-bold text-sm text-glow-emerald">0.0% Completed</span>
+                </div>
+                <div class="w-full h-4 bg-cyber-950 rounded-full p-0.5 border border-slate-800 overflow-hidden relative shadow-inner">
+                    <div id="challengeProgressBar" class="progress-sheen h-full rounded-full bg-gradient-to-r from-cyan-500 via-emerald-400 to-cyber-gold transition-all duration-1000 shadow-neon-emerald" style="width: 0%"></div>
+                </div>
+                <!-- Milestones Points -->
+                <div class="flex justify-between items-center text-[10px] font-mono text-slate-500 pt-1">
+                    <span class="text-cyan-400 font-semibold">$100 (Level 0)</span>
+                    <span>$250 (25%)</span>
+                    <span>$500 (50%)</span>
+                    <span>$750 (75%)</span>
+                    <span class="text-cyber-gold font-bold flex items-center gap-1"><i class="fa-solid fa-crown text-cyber-gold"></i> $1,000</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Metric KPI Cards Grid with Interactive Lift & Glow -->
+        <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+            <!-- Balance -->
+            <div class="card-hover-lift p-4 rounded-xl glass-card border border-slate-800/80 flex flex-col justify-between">
+                <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                    <span>Account Equity</span>
+                    <i class="fa-solid fa-wallet text-cyan-400"></i>
+                </div>
+                <div class="text-xl font-bold font-mono text-slate-100" id="cardBalance">$100.00</div>
+                <div class="text-[11px] font-mono text-slate-400 mt-1" id="cardTotalPL">+$0.00 (0%)</div>
+            </div>
+
+            <!-- Today's P&L -->
+            <div class="card-hover-lift p-4 rounded-xl glass-card border border-slate-800/80 flex flex-col justify-between">
+                <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                    <span>Today's P&L</span>
+                    <i class="fa-solid fa-calendar-day text-emerald-400"></i>
+                </div>
+                <div class="text-xl font-bold font-mono text-slate-100" id="cardTodayPL">$0.00</div>
+                <div class="text-[11px] font-mono text-slate-400 mt-1" id="cardTodayTarget">Target: $10.00</div>
+            </div>
+
+            <!-- Win Rate -->
+            <div class="card-hover-lift p-4 rounded-xl glass-card border border-slate-800/80 flex flex-col justify-between">
+                <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                    <span>Win Rate</span>
+                    <i class="fa-solid fa-bullseye text-purple-400"></i>
+                </div>
+                <div class="text-xl font-bold font-mono text-slate-100" id="cardWinRate">0.0%</div>
+                <div class="text-[11px] font-mono text-slate-400 mt-1" id="cardTradeCounts">0W / 0L / 0BE</div>
+            </div>
+
+            <!-- Avg R:R -->
+            <div class="card-hover-lift p-4 rounded-xl glass-card border border-slate-800/80 flex flex-col justify-between">
+                <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                    <span>Avg R:R Ratio</span>
+                    <i class="fa-solid fa-scale-balanced text-amber-400"></i>
+                </div>
+                <div class="text-xl font-bold font-mono text-slate-100" id="cardAvgRR">1:2.0</div>
+                <div class="text-[11px] font-mono text-slate-400 mt-1">Rule 4: Min 1:2</div>
+            </div>
+
+            <!-- Profit Factor -->
+            <div class="card-hover-lift p-4 rounded-xl glass-card border border-slate-800/80 flex flex-col justify-between">
+                <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                    <span>Profit Factor</span>
+                    <i class="fa-solid fa-chart-pie text-cyan-400"></i>
+                </div>
+                <div class="text-xl font-bold font-mono text-slate-100" id="cardProfitFactor">0.00</div>
+                <div class="text-[11px] font-mono text-slate-400 mt-1" id="cardGrossPL">G: $0 / L: $0</div>
+            </div>
+
+            <!-- Discipline Score -->
+            <div class="card-hover-lift p-4 rounded-xl glass-card border border-slate-800/80 flex flex-col justify-between">
+                <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                    <span>Discipline Index</span>
+                    <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+                </div>
+                <div class="text-xl font-bold font-mono text-emerald-400" id="cardDiscipline">100%</div>
+                <div class="text-[11px] font-mono text-slate-400 mt-1">8 Rules Protocol</div>
+            </div>
+        </section>
+
+        <!-- Charts Grid (2 columns on large screens) -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Main Equity Curve Chart (Spans 2 cols) -->
+            <div class="lg:col-span-2 p-5 rounded-2xl glass-card border border-slate-800/80 shadow-glow-card flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-trend-up text-cyan-400"></i>
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-200">Account Growth Trajectory</h3>
+                    </div>
+                    <div class="text-xs font-mono text-slate-400">Realized Balance vs $1,000 Target</div>
+                </div>
+                <div class="relative h-64 w-full">
+                    <canvas id="equityChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Win/Loss & Strategy Donut -->
+            <div class="p-5 rounded-2xl glass-card border border-slate-800/80 shadow-glow-card flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-purple-400"></i>
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-200">Trade Outcomes</h3>
+                    </div>
+                    <span class="text-xs font-mono text-slate-400" id="totalTradesBadge">0 Trades</span>
+                </div>
+                <div class="relative h-64 w-full flex items-center justify-center">
+                    <canvas id="outcomeChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Secondary Charts & Daily P&L -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Daily P&L Bar Chart -->
+            <div class="p-5 rounded-2xl glass-card border border-slate-800/80 shadow-glow-card flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-chart-column text-emerald-400"></i>
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-200">Daily P&L Performance ($)</h3>
+                    </div>
+                    <span class="text-xs font-mono text-slate-400">Daily Limit: -$5.00</span>
+                </div>
+                <div class="relative h-56 w-full">
+                    <canvas id="dailyPnlChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Setup Performance Breakdown -->
+            <div class="p-5 rounded-2xl glass-card border border-slate-800/80 shadow-glow-card flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group text-amber-400"></i>
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-200">Setup Performance (MSS & Key Levels)</h3>
+                    </div>
+                    <span class="text-xs font-mono text-slate-400">P&L by Strategy</span>
+                </div>
+                <div class="relative h-56 w-full">
+                    <canvas id="setupChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- The 8 Golden Trading Rules & Protocol Reference Card -->
+        <section class="p-6 rounded-2xl glass-card border border-slate-800/80 shadow-glow-card">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 border-b border-slate-800/60 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 flex items-center justify-center font-bold text-sm shadow-neon-cyan">
+                        <i class="fa-solid fa-book-bookmark"></i>
+                    </span>
+                    <div>
+                        <h3 class="text-base font-extrabold text-slate-100 tracking-wide uppercase">Core Trading Rules & Protocol (The 8 Commandments)</h3>
+                        <p class="text-xs text-slate-400">Strict adherence is mandatory. Follow the process; the profit follows.</p>
+                    </div>
+                </div>
+                <div class="text-xs font-mono px-3 py-1 rounded-full bg-cyber-850 text-slate-300 border border-slate-700/60 self-start sm:self-auto flex items-center gap-1.5">
+                    <i class="fa-solid fa-shield-check text-cyan-400"></i> Discipline > Emotions
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5" id="rulesGrid">
+                {% for rule in rules %}
+                <div class="card-hover-lift p-3.5 rounded-xl bg-cyber-900/90 border border-slate-800/90 group">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                            RULE #{{ rule.id }}
+                        </span>
+                        <i class="fa-solid fa-check-circle text-slate-600 group-hover:text-emerald-400 group-hover:scale-125 transition-all text-xs"></i>
+                    </div>
+                    <div class="text-xs font-bold text-slate-200 mb-1 group-hover:text-cyan-300 transition-colors">{{ rule.text }}</div>
+                    <div class="text-[11px] text-slate-400 leading-relaxed">{{ rule.desc }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Trade History Table Section -->
+        <section class="p-6 rounded-2xl glass-card border border-slate-800/80 shadow-glow-card space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center font-bold text-sm shadow-neon-emerald">
+                        <i class="fa-solid fa-list-check"></i>
+                    </span>
+                    <div>
+                        <h3 class="text-base font-extrabold text-slate-100 tracking-wide uppercase">Trade Journal & History</h3>
+                        <p class="text-xs text-slate-400">Detailed records with rule compliance logs</p>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <select id="filterOutcome" onchange="loadTrades()" class="px-3 py-1.5 rounded-lg bg-cyber-900 border border-slate-800 text-xs font-mono text-slate-300 focus:outline-none focus:border-cyan-500">
+                        <option value="">All Outcomes</option>
+                        <option value="win">🟢 Wins Only</option>
+                        <option value="loss">🔴 Losses Only</option>
+                        <option value="be">⚪ Breakeven</option>
+                    </select>
+                    <select id="filterSetup" onchange="loadTrades()" class="px-3 py-1.5 rounded-lg bg-cyber-900 border border-slate-800 text-xs font-mono text-slate-300 focus:outline-none focus:border-cyan-500">
+                        <option value="">All Setups</option>
+                        <option value="15m Flow + 1m Entry (MSS & TS)">15m Flow + 1m (MSS & TS)</option>
+                        <option value="1H Key Level + 5m/3m Entry (MSS)">1H Key Level + 5m/3m</option>
+                        <option value="4H Key Level + 15m/5m Entry (MSS)">4H Key Level + 15m/5m</option>
+                    </select>
+                    <button onclick="loadSampleTrades()" class="card-hover-lift px-3 py-1.5 rounded-lg bg-cyber-850 hover:bg-cyber-800 text-slate-300 border border-slate-700/60 text-xs font-mono transition-all">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-400 mr-1"></i> Sample Demo
+                    </button>
+                    <button onclick="resetTrades()" class="card-hover-lift px-3 py-1.5 rounded-lg bg-cyber-850 hover:bg-rose-950 text-rose-300 border border-slate-700/60 text-xs font-mono transition-all">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Clear All
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto rounded-xl border border-slate-800/80">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-cyber-900/90 text-slate-400 font-mono uppercase text-[10px] tracking-wider border-b border-slate-800">
+                        <tr>
+                            <th class="py-3 px-3">Date</th>
+                            <th class="py-3 px-3">Pair / Asset</th>
+                            <th class="py-3 px-3">Type</th>
+                            <th class="py-3 px-3">Setup / Strategy</th>
+                            <th class="py-3 px-3">Entry / Exit</th>
+                            <th class="py-3 px-3">SL / TP</th>
+                            <th class="py-3 px-3">R:R</th>
+                            <th class="py-3 px-3">P&L ($)</th>
+                            <th class="py-3 px-3">Discipline</th>
+                            <th class="py-3 px-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tradesTableBody" class="divide-y divide-slate-800/60 font-mono">
+                        <!-- Filled by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- ======================= MODALS (WITH SMOOTH SCALE ENTRANCE) ======================= -->
+
+    <!-- LOG TRADE MODAL -->
+    <div id="tradeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md hidden p-4 overflow-y-auto">
+        <div class="modal-enter glass-card bg-cyber-900/95 border border-slate-700/80 rounded-2xl w-full max-w-2xl p-6 shadow-2xl space-y-5 my-8 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-sm font-bold shadow-neon-cyan">
+                        <i class="fa-solid fa-plus"></i>
+                    </span>
+                    <h3 class="text-base font-bold text-slate-100" id="tradeModalTitle">Log New Trade Execution</h3>
+                </div>
+                <button onclick="closeTradeModal()" class="text-slate-400 hover:text-slate-200 hover:rotate-90 transition-transform">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="tradeForm" onsubmit="handleTradeSubmit(event)" class="space-y-4 text-xs font-mono">
+                <input type="hidden" id="editTradeId" value="">
+
+                <!-- Grid 1: Basic Trade Details -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Date</label>
+                        <input type="date" id="tradeDate" required class="w-full bg-cyber-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Pair / Symbol</label>
+                        <input type="text" id="tradePair" placeholder="e.g. XAUUSD" required class="w-full bg-cyber-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 uppercase focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Direction</label>
+                        <select id="tradeDirection" class="w-full bg-cyber-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500">
+                            <option value="BUY">🟢 BUY / LONG</option>
+                            <option value="SELL">🔴 SELL / SHORT</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Grid 2: Strategy / Setup -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Setup Type</label>
+                        <select id="tradeSetupType" class="w-full bg-cyber-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500">
+                            <option value="15m Flow + 1m Entry (MSS & TS)">Rule 5: 15m Flow + 1m Entry (MSS & TS)</option>
+                            <option value="1H Key Level + 5m/3m Entry (MSS)">Rule 6: 1H Key Level + 5m/3m (MSS)</option>
+                            <option value="4H Key Level + 15m/5m Entry (MSS)">Rule 7: 4H Key Level + 15m/5m (MSS)</option>
+                            <option value="Other / Scalp">Other / Continuation</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Timeframe Used</label>
+                        <input type="text" id="tradeTimeframe" placeholder="e.g. 15m/1m or 1H/5m" class="w-full bg-cyber-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500">
+                    </div>
+                </div>
+
+                <!-- Grid 3: Price Levels & Lot Size -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Entry Price</label>
+                        <input type="number" step="any" id="tradeEntry" placeholder="0.00" class="w-full bg-cyber-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Exit Price</label>
+                        <input type="number" step="any" id="tradeExit" placeholder="0.00" class="w-full bg-cyber-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Stop Loss (SL)</label>
+                        <input type="number" step="any" id="tradeSL" placeholder="0.00" class="w-full bg-cyber-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Take Profit (TP)</label>
+                        <input type="number" step="any" id="tradeTP" placeholder="0.00" class="w-full bg-cyber-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500">
+                    </div>
+                </div>
+
+                <!-- Grid 4: P&L and Risk Reward -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 rounded-xl bg-cyber-950 border border-slate-800/80">
+                    <div>
+                        <label class="block text-cyan-400 font-bold mb-1">Profit / Loss ($) *</label>
+                        <input type="number" step="any" id="tradePL" placeholder="e.g. 10.50 or -5.00" required class="w-full bg-cyber-900 border border-cyan-500/50 rounded-lg px-3 py-2 text-slate-100 font-bold focus:outline-none focus:border-cyan-400 text-sm shadow-inner">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Lot Size</label>
+                        <input type="number" step="any" id="tradeLot" value="0.01" class="w-full bg-cyber-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">R:R Ratio (Min 1:2)</label>
+                        <input type="number" step="any" id="tradeRR" value="2.0" class="w-full bg-cyber-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500">
+                    </div>
+                </div>
+
+                <!-- PRE-TRADE DISCIPLINE RULES CHECKLIST -->
+                <div class="space-y-2.5 p-3.5 rounded-xl bg-cyber-950/80 border border-slate-800">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-slate-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                            <i class="fa-solid fa-list-check text-cyan-400"></i> Rules Compliance Checklist
+                        </span>
+                        <span class="text-[10px] text-cyan-400 font-mono" id="formRuleScore">0/8 Rules Checked</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                        <label class="card-hover-lift flex items-center gap-2 p-2 rounded bg-cyber-900/60 border border-slate-800/80 cursor-pointer">
+                            <input type="checkbox" name="ruleCheck" value="1" class="rounded bg-cyber-950 border-slate-700 text-cyan-500 focus:ring-0">
+                            <span>1. Don't FOMO</span>
+                        </label>
+                        <label class="card-hover-lift flex items-center gap-2 p-2 rounded bg-cyber-900/60 border border-slate-800/80 cursor-pointer">
+                            <input type="checkbox" name="ruleCheck" value="2" class="rounded bg-cyber-950 border-slate-700 text-cyan-500 focus:ring-0">
+                            <span>2. No outside signal / stick to edge</span>
+                        </label>
+                        <label class="card-hover-lift flex items-center gap-2 p-2 rounded bg-cyber-900/60 border border-slate-800/80 cursor-pointer">
+                            <input type="checkbox" name="ruleCheck" value="3" class="rounded bg-cyber-950 border-slate-700 text-cyan-500 focus:ring-0">
+                            <span>3. Max 1-2 setups per day</span>
+                        </label>
+                        <label class="card-hover-lift flex items-center gap-2 p-2 rounded bg-cyber-900/60 border border-slate-800/80 cursor-pointer">
+                            <input type="checkbox" name="ruleCheck" value="4" class="rounded bg-cyber-950 border-slate-700 text-cyan-500 focus:ring-0">
+                            <span>4. Minimum 1:2 RR ratio</span>
+                        </label>
+                        <label class="card-hover-lift flex items-center gap-2 p-2 rounded bg-cyber-900/60 border border-slate-800/80 cursor-pointer">
+                            <input type="checkbox" name="ruleCheck" value="5" class="rounded bg-cyber-950 border-slate-700 text-cyan-500 focus:ring-0">
+                            <span>5. 15m Flow + 1m (MSS & TS)</span>
+                        </label>
+                        <label class="card-hover-lift flex items-center gap-2 p-2 rounded bg-cyber-900/60 border border-slate-800/80 cursor-pointer">
+                            <input type="checkbox" name="ruleCheck" value="6" class="rounded bg-cyber-950 border-slate-700 text-cyan-500 focus:ring-0">
+                            <span>6. 1H Key Level + 5m/3m MSS</span>
+                        </label>
+                        <label class="card-hover-lift flex items-center gap-2 p-2 rounded bg-cyber-900/60 border border-slate-800/80 cursor-pointer">
+                            <input type="checkbox" name="ruleCheck" value="7" class="rounded bg-cyber-950 border-slate-700 text-cyan-500 focus:ring-0">
+                            <span>7. 4H Key Level + 15m/5m MSS</span>
+                        </label>
+                        <label class="card-hover-lift flex items-center gap-2 p-2 rounded bg-cyber-900/60 border border-slate-800/80 cursor-pointer">
+                            <input type="checkbox" name="ruleCheck" value="8" class="rounded bg-cyber-950 border-slate-700 text-cyan-500 focus:ring-0">
+                            <span>8. Risk $5 max (Stop if -$5)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div>
+                    <label class="block text-slate-400 mb-1">Execution Notes & Psychology</label>
+                    <textarea id="tradeNotes" rows="2" placeholder="e.g. MSS was super clean on 1m after liquidity sweep. Followed plan." class="w-full bg-cyber-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500"></textarea>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeTradeModal()" class="px-4 py-2 rounded-xl bg-cyber-850 text-slate-400 hover:text-slate-200 font-medium text-xs">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-cyber-glow px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-emerald-400 to-emerald-500 text-cyber-950 font-extrabold text-xs shadow-neon-cyan active:scale-95 transition-all">
+                        Save Trade & Send Alert
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SETTINGS & TELEGRAM MODAL -->
+    <div id="settingsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md hidden p-4 overflow-y-auto">
+        <div class="modal-enter glass-card bg-cyber-900/95 border border-slate-700/80 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5 my-8">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center text-sm font-bold shadow-neon-cyan">
+                        <i class="fa-brands fa-telegram"></i>
+                    </span>
+                    <h3 class="text-base font-bold text-slate-100">Telegram Bot & Goal Configuration</h3>
+                </div>
+                <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-200 hover:rotate-90 transition-transform">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="settingsForm" onsubmit="handleSettingsSubmit(event)" class="space-y-4 text-xs font-mono">
+                <!-- Goal Config -->
+                <div class="p-3.5 rounded-xl bg-cyber-950 border border-slate-800 space-y-3">
+                    <div class="font-bold text-slate-200 uppercase text-[11px] text-cyan-400">Account & Risk Parameters</div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-slate-400 mb-1">Starting Balance ($)</label>
+                            <input type="number" step="any" id="settingInitialBalance" value="100.00" class="w-full bg-cyber-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-1">Target Balance ($)</label>
+                            <input type="number" step="any" id="settingTargetBalance" value="1000.00" class="w-full bg-cyber-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-1">Daily Target ($)</label>
+                            <input type="number" step="any" id="settingDailyTarget" value="10.00" class="w-full bg-cyber-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-1">Max Daily Loss ($) (Rule 8)</label>
+                            <input type="number" step="any" id="settingMaxLoss" value="5.00" class="w-full bg-cyber-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Telegram Config -->
+                <div class="p-3.5 rounded-xl bg-cyber-950 border border-slate-800 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-sky-400 uppercase text-[11px]">Telegram Alerts Setup</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="settingTgEnabled" class="sr-only peer">
+                            <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-500"></div>
+                        </label>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-400 mb-1">Telegram Bot Token</label>
+                        <input type="text" id="settingTgToken" placeholder="123456789:ABCdefGHIjklMNOpqrSTUvwxYZ" class="w-full bg-cyber-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:border-sky-400">
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-400 mb-1">Telegram Chat ID</label>
+                        <input type="text" id="settingTgChatId" placeholder="e.g. 123456789 or -100123456789" class="w-full bg-cyber-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:border-sky-400">
+                    </div>
+
+                    <div class="flex items-center justify-between pt-1">
+                        <button type="button" onclick="testTelegramBot()" class="btn-cyber-glow px-3.5 py-1.5 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-500/40 hover:bg-sky-500/30 text-xs font-semibold transition-all">
+                            <i class="fa-solid fa-paper-plane mr-1"></i> Send Test Alert
+                        </button>
+                        <span id="tgTestStatus" class="text-[11px] text-slate-400"></span>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl bg-cyber-850 text-slate-400 hover:text-slate-200 font-medium text-xs">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-cyber-glow px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-cyber-950 font-bold text-xs shadow-neon-cyan transition-all">
+                        Save Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- RISK & LOT SIZE CALCULATOR MODAL -->
+    <div id="calcModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md hidden p-4 overflow-y-auto">
+        <div class="modal-enter glass-card bg-cyber-900/95 border border-slate-700/80 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4 my-8">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-sm font-bold shadow-neon-gold">
+                        <i class="fa-solid fa-calculator"></i>
+                    </span>
+                    <h3 class="text-base font-bold text-slate-100">Rule 8 Risk & Lot Calculator</h3>
+                </div>
+                <button onclick="closeCalcModal()" class="text-slate-400 hover:text-slate-200 hover:rotate-90 transition-transform">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-xs font-mono">
+                <div>
+                    <label class="block text-slate-400 mb-1">Max Risk Amount ($)</label>
+                    <input type="number" id="calcRiskAmount" value="5.00" oninput="calculateLotSize()" class="w-full bg-cyber-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
+                    <span class="text-[10px] text-slate-500">Enforces Rule 8 ($5 max loss)</span>
+                </div>
+
+                <div>
+                    <label class="block text-slate-400 mb-1">Asset Class</label>
+                    <select id="calcAsset" onchange="calculateLotSize()" class="w-full bg-cyber-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
+                        <option value="GOLD">XAUUSD / Gold (100 oz)</option>
+                        <option value="FX">Forex Pairs (EURUSD, GBPUSD)</option>
+                        <option value="CRYPTO">Crypto (BTC, ETH)</option>
+                        <option value="INDICES">US30 / NAS100</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Entry Price</label>
+                        <input type="number" step="any" id="calcEntry" placeholder="2500.00" oninput="calculateLotSize()" class="w-full bg-cyber-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Stop Loss Price</label>
+                        <input type="number" step="any" id="calcSL" placeholder="2497.50" oninput="calculateLotSize()" class="w-full bg-cyber-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
+                    </div>
+                </div>
+
+                <!-- Output Box -->
+                <div class="p-4 rounded-xl bg-cyber-950 border border-amber-500/40 space-y-2 mt-2 shadow-neon-gold">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400">SL Distance (Points/Pips):</span>
+                        <span id="calcDistance" class="font-bold text-slate-200">0.00</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400">Recommended Lot Size:</span>
+                        <span id="calcLotResult" class="font-bold text-amber-400 text-base">0.01 Lot</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400">1:2 Target (Rule 4 TP):</span>
+                        <span id="calcTPResult" class="font-bold text-emerald-400 text-sm">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
